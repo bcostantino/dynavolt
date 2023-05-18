@@ -1,7 +1,7 @@
 Version 4
 SymbolType BLOCK
-RECTANGLE Normal 80 128 -80 -80
-WINDOW 0 0 -80 Bottom 2
+RECTANGLE Normal 80 128 -80 -112
+WINDOW 0 0 -112 Bottom 2
 PIN -80 32 LEFT 8
 PINATTR PinName C0
 PINATTR SpiceOrder 1
@@ -20,3 +20,6 @@ PINATTR SpiceOrder 5
 PIN 80 -32 RIGHT 8
 PINATTR PinName HVo
 PINATTR SpiceOrder 6
+PIN -80 -80 LEFT 8
+PINATTR PinName LVdd
+PINATTR SpiceOrder 7

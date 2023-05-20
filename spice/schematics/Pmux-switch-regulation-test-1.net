@@ -1,0 +1,88 @@
+* C:\users\brian\Documents\projects\power-supply-PCM\spice\schematics\Pmux-switch-regulation-test-1.asc
+V1 C0 0 PULSE(0 5 0 10u 10u 1 2)
+V4 LVdd 0 5
+V5 HVss1 0 36
+RL HVdd 0 1k
+C1 HVdd N001 10µ
+V6 HVss2 0 24
+XX2 C0 LVdd HVss1 HVss2 LVdd HVdd LVdd pmux-2ch
+R1 N001 0 10k
+
+* block symbol definitions
+.subckt pmux-2ch C0 EN HVss0 HVss1 ~LOCK HVo LVdd
+C2 HVss1 0 10µ
+D2 N004 HVo MBRS360
+D1 N001 HVo MBRS360
+C4 ~CS0 0 100n
+C1 HVss0 0 10µ
+C5 N006 0 0.1µ
+XX1 C0 ~LOCK LVdd CS0 ~CS0 cmos_dlatch
+XX2 HVss0 N003 N001 9530n_pmos_hss
+XX3 HVss1 N006 N004 9530n_pmos_hss
+XX4 ~CS0 EN 0 LVdd N002 cmos_nand
+XX5 CS0 EN 0 LVdd N005 cmos_nand
+XX6 N002 0 LVdd N003 cmos_inv
+XX7 N005 0 LVdd N006 cmos_inv
+.ends pmux-2ch
+
+.subckt cmos_dlatch D EN Vss Q ~Q
+XX2 N003 ~Q 0 Vss Q cmos_nor
+XX3 Q N005 0 Vss ~Q cmos_nor
+XX4 N002 0 Vss N003 cmos_inv
+XX5 N004 0 Vss N005 cmos_inv
+XX6 N001 EN 0 Vss N002 cmos_nand
+XX7 EN D 0 Vss N004 cmos_nand
+XX8 D 0 Vss N001 cmos_inv
+.ends cmos_dlatch
+
+.subckt 9530n_pmos_hss Vss Vbb Vdd
+XU3 Vdd N001 Vss 9530n
+Q1 N001 Vbb N002 0 2N3904
+R3 Vss N001 10k
+D1 N001 Vss TFZ18B
+R2 N002 0 330
+.ends 9530n_pmos_hss
+
+.subckt cmos_nand A B Vdd Vss Out
+M3 Out A N003 Vdd NMOD1 l=1u w=50u
+M4 N003 B Vdd Vdd NMOD1 l=1u w=50u
+M1 Vss A Out N001 PMOD1 l=1u w=50u
+M2 Vss B Out N002 PMOD1 l=1u w=50u
+.model PMOD1 pmos (KP=100u GAMMA=0.9 phi=0.6 lambda=0.02 VTO=-0.7)
+.model NMOD1 nmos (KP=200u GAMMA=0.9 phi=0.6 lambda=0.02 VTO=0.7)
+.ends cmos_nand
+
+.subckt cmos_inv A Vdd Vss Out
+M3 Out A Vdd N002 NMOD1 l=1u w=25u
+M2 Vss A Out N001 PMOD1 l=1u w=100u
+.model PMOD1 pmos (KP=100u GAMMA=0.9 phi=0.6 lambda=0.02 VTO=-0.7)
+.model NMOD1 nmos (KP=200u GAMMA=0.9 phi=0.6 lambda=0.02 VTO=0.7)
+.ends cmos_inv
+
+.subckt cmos_nor A B Vdd Vss Out
+M3 Out A Vdd N002 NMOD1 l=1u w=25u
+M4 Out B Vdd N003 NMOD1 l=1u w=25u
+M1 Vss A N001 Vss PMOD1 l=1u w=100u
+M2 N001 B Out Vss PMOD1 l=1u w=100u
+.model PMOD1 pmos (KP=100u GAMMA=0.9 phi=0.6 lambda=0.02 VTO=-0.7)
+.model NMOD1 nmos (KP=200u GAMMA=0.9 phi=0.6 lambda=0.02 VTO=0.7)
+.ends cmos_nor
+
+.model D D
+.lib C:\users\brian\Documents\LTspiceXVII\lib\cmp\standard.dio
+.model NPN NPN
+.model PNP PNP
+.lib C:\users\brian\Documents\LTspiceXVII\lib\cmp\standard.bjt
+.model NMOS NMOS
+.model PMOS PMOS
+.lib C:\users\brian\Documents\LTspiceXVII\lib\cmp\standard.mos
+.tran 0 4 0 0.01s
+* Power Multiplexer (PMux) SR (no-control) Test
+* Test inputs to control the open/closed state of\n2 HV MOSFET switches
+* Load
+* 1b Power Mux
+* Copyright © 2023 Brian Costantino\n \nThis file is a part of DynaVolt.\n \nDynaVolt is a free hardware design: you can redistribute it and/or modify \nit under the terms of the CERN Open Hardware License (OHL) v2.\n \nDynaVolt is distributed in the hope that it will be useful, but WITHOUT \nANY WARRANTY; without even the implied warranty of MERCHANTABILITY\nor FITNESS FOR A PARTICULAR PURPOSE. See ~/LICENSE for more details.\n \nYou should have received a copy of the CERN-OHL-W v2 along with this \nrepository. If not, see https://ohwr.org/cern_ohl_w_v2.tx
+* Pinout:\n       LVdd     logic voltage\n       C0          digital control voltage\n       EN          switch enable\n    ~LOCK     lock switch in last state\n       HVssi     high-voltage input #i\n       HVo        switched high-voltage output
+.lib 9530n.spi
+.backanno
+.end
